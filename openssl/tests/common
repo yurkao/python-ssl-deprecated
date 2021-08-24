@@ -1,0 +1,40 @@
+S_CLIENT="openssl s_client -connect"
+# shellcheck disable=SC2034
+SSL_PROTOCOLS="ssl2 ssl3 tls1 tls1_1 tls1_2"
+start() {
+  echo "$* ..."
+}
+
+failed() {
+  echo "$* ... FAIL"
+}
+
+ok() {
+  echo "$* ... DONE"
+}
+
+test_ssl_connection() {
+  local protocol="$1"
+  local server="$2"
+  local ca_path="${3:-/etc/ssl/certs/ca-certificates.crt}"
+  local msg="Testing protocol ${protocol} connection against ${server}"
+  start "$msg"
+  if ! echo | ${S_CLIENT} "${server}" "-${protocol}"  -CAfile "${ca_path}" | grep 'Verify return code: 0 (ok)' > /dev/null; then
+    failed "$msg"
+    return 1
+  fi
+  ok "$msg"
+  return 0
+}
+
+test_ssl_cipher() {
+  local suite="${1}"
+  local msg="Testing cipher suite ${suite}"
+  start "$msg"
+  if ! openssl ciphers "$suite" > /dev/null; then
+      failed "$msg"
+      return 1
+  fi
+  ok "$msg"
+  return 0
+}
