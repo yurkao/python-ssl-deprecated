@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 cleanup() {
-  rm -rf "${BUILD_DIR}/openssl-${OPENSSL_VERSION}"* "${SSL_CONF_DIR}"/man
+  rm -rf "${BUILD_DIR}/openssl-${OPENSSL_VERSION}"* "${SSL_CONF_DIR}"/man "${INSTALL_DIR}"/share/man
   # shellcheck disable=SC2086
   ${PKG_DEL} ${BUILD_DEPS} && ${CLEAR_CACHE} && rm -rf /var/lib/apt/lists
 }

@@ -14,15 +14,13 @@ ENV CLEAR_CACHE="apt-get clean"
 ENV BUILD_DEPS="make wget build-essential libffi-dev zlib1g-dev"
 ENV TEST_DIR=/tests
 
-ENV OPENSSL_VERSION="1.0.2k"
+ENV OPENSSL_VERSION="1.0.2u"
 
 ADD tests ${TEST_DIR}/
 RUN chmod 644 "${TEST_DIR}"/* && chmod 755 "${TEST_DIR}"/*.sh
 
-ADD build-openssl.sh /sbin
-RUN sh -e /sbin/build-openssl.sh
+ADD build-openssl.sh /sbin/
+ADD run-tests /sbin/
+RUN chmod 755 /sbin/run-tests && sh -e /sbin/build-openssl.sh
 RUN ${CACHE_UPDATE} && $PKG_ADD ca-certificates && ${CLEAR_CACHE} && rm -rf /var/lib/apt/lists
-RUN run-parts --verbose '--regex=[0-9]+-.+' /tests
-
-
-
+RUN run-tests
