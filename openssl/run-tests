@@ -1,2 +1,5 @@
+#!/usr/bin/env sh
+
+chmod 644 "${TEST_DIR}"/* && chmod 755 "${TEST_DIR}"/*.sh
 run-parts --verbose '--regex=[0-9]+-.+' "${TEST_DIR}"
 

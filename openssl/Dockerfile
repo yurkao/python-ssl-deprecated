@@ -25,4 +25,4 @@ RUN ${CACHE_UPDATE} && $PKG_ADD ca-certificates && ${CLEAR_CACHE} && rm -rf /var
 
 ADD run-tests /sbin/
 ADD tests ${TEST_DIR}/
-RUN chmod 755 /sbin/run-tests && chmod 644 "${TEST_DIR}"/* && chmod 755 "${TEST_DIR}"/*.sh && run-tests
+RUN chmod 755 /sbin/run-tests && run-tests
