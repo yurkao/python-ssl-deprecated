@@ -1,5 +1,6 @@
---- ssl/ssl.h.bak       2021-08-24 21:42:11.601832000 +0000
-+++ ssl/ssl.h   2021-08-24 21:42:28.844893000 +0000
+Enable all ciphers by default
+--- a/ssl/ssl.h   2021-08-24 21:42:11.601832000 +0000
++++ b/ssl/ssl.h   2021-08-24 21:42:28.844893000 +0000
 @@ -338,7 +338,7 @@
   * The following cipher list is used by default. It also is substituted when
   * an application-defined cipher list string starts with 'DEFAULT'.

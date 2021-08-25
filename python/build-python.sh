@@ -1,21 +1,36 @@
 #!/usr/bin/env sh
 
+patch_modules_setup() {
+  # cannot use regular patch mechanism since we have to "render" SSL=....
+  export MOD_SETUP="Modules/Setup"
+  # shellcheck disable=SC2129
+  echo '_socket socketmodule.c' >> "${MOD_SETUP}"
+  echo "SSL=${OPENSSL_DIR}"  >> "${MOD_SETUP}"
+  # shellcheck disable=SC1003
+  echo '_ssl _ssl.c \' >> "${MOD_SETUP}"
+  # shellcheck disable=SC1003
+  # shellcheck disable=SC2016
+  echo '  -DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \'  >> "${MOD_SETUP}"
+  # shellcheck disable=SC2016
+  echo '  -L$(SSL)/lib -lssl -lcrypto'  >> "${MOD_SETUP}"
+}
+
 remove_py_tests() {
   for name in test tests idle_test; do
-    find "${INSTALL_DIR}" -type d name "${name}"  -exec rm -rf '{}' \;
+    find "${INSTALL_DIR}" -type d -name "${name}" -print0 | xargs --no-run-if-empty --null rm -rf
   done
 }
 
 remove_py_cache() {
   for ext in test pyc pyo; do
-    find "${INSTALL_DIR}" -type f name "*.${ext}"  -delete
+    find "${INSTALL_DIR}" -type f -name "*.${ext}" -delete
   done
 }
 
 cleanup() {
   rm -rf "${OPENSSL_DIR}/include/openssl"
   rm -f python.tar.xz
-  rm -rf "${PYTHON_SRC_DIR}"
+  rm -rf "${PYTHON_SRC_DIR}" "${BUILD_DIR}"
   remove_py_tests
   remove_py_cache
 # shellcheck disable=SC2086
@@ -42,25 +57,13 @@ mkdir -p "${BUILD_DIR}"
 tar -xJC "${BUILD_DIR}" --strip-components=1 -f /tmp/python.tar.xz
 cd "${BUILD_DIR}" || exit 1
 
-make clean || true
 export LD_RUN_PATH="${OPENSSL_DIR}/lib"
-export MOD_SETUP="Modules/Setup"
-# shellcheck disable=SC2129
-echo '_socket socketmodule.c' >> "${MOD_SETUP}"
-echo "SSL=${OPENSSL_DIR}"  >> "${MOD_SETUP}"
-# shellcheck disable=SC1003
-echo '_ssl _ssl.c \' >> "${MOD_SETUP}"
-# shellcheck disable=SC1003
-# shellcheck disable=SC2016
-echo '  -DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \'  >> "${MOD_SETUP}"
-# shellcheck disable=SC2016
-echo '  -L$(SSL)/lib -lssl -lcrypto'  >> "${MOD_SETUP}"
+patch_modules_setup
+QUILT_PATCHES="${PYTHON_PATCH_DIR}" quilt push -a
 
 ARCH="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"
 
-XARGS="xargs --no-run-if-empty -t -0 -n 1"
-find "${PYTHON_PATCH_DIR}"/ -maxdepth 1 -type f -name '*.patch' -print0  | sort -z | ${XARGS} patch -p0 -i
-
+make clean || true
 ./configure --build="${ARCH}" -C --enable-loadable-sqlite-extensions \
   --enable-optimizations --enable-option-checking=fatal \
   --with-system-expat --with-ssl-default-suites=openssl \

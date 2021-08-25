@@ -23,8 +23,7 @@ wget --quiet  -O "${BUILD_DIR}/openssl-${OPENSSL_VERSION}.tar.gz" "https://opens
 tar zxf "${BUILD_DIR}/openssl-${OPENSSL_VERSION}.tar.gz" --strip-components=1 -C "${BUILD_DIR}/openssl-${OPENSSL_VERSION}"
 cd "${BUILD_DIR}/openssl-${OPENSSL_VERSION}" || exit 1
 
-XARGS="xargs --no-run-if-empty -t -0 -n 1"
-find "${OPENSSL_PATCH_DIR}"/ -maxdepth 1 -type f -name '*.patch' -print0 | sort -z | ${XARGS} patch -p0 -i
+rm -rf .pc; QUILT_PATCHES="${OPENSSL_PATCH_DIR}" quilt push -a
 
 export LD_FLAGS="-Wl,--enable-new-dtags,-rpath=${INSTALL_DIR}/lib"
 export SSL_BUILD_OPTS="${INSTALL_OPTS} -DOPENSSL_USE_BUILD_DATE -Wl,--enable-new-dtags,-rpath=${INSTALL_DIR}/lib"
@@ -37,6 +36,7 @@ export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-dtls1 enable-threads"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-ec_nistp_64_gcc_128"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-aesgcm enable-aes-enable enable-dh enable-adh enable-edh enable-dhe"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-export enable-export40 enable-export56 enable-export1024 enable-srp enable-gost"
+export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-dso enable-ccgost"
 
 # shellcheck disable=SC2155
 export MAKE="make"

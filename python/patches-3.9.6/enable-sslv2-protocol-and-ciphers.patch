@@ -1,5 +1,5 @@
---- Modules/_ssl.c.org  2021-08-24 22:20:39.111196000 +0000
-+++ Modules/_ssl.c      2021-08-24 22:48:59.051790000 +0000
+--- a/Modules/_ssl.c  2021-08-24 22:20:39.111196000 +0000
++++ b/Modules/_ssl.c  2021-08-24 22:48:59.051790000 +0000
 @@ -302,7 +302,7 @@
   * !aDSS: no authentication with discrete logarithm DSA algorithm
   * !SRP:!PSK: no secure remote password or pre-shared key authentication

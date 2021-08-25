@@ -13,10 +13,16 @@ ENV PKG_ADD="apt-get install -y -qq -o=Dpkg::Use-Pty=0 "
 ENV PKG_DEL="apt-get purge --auto-remove -y"
 ENV CLEAR_CACHE="apt-get clean"
 ENV BUILD_DEPS="make wget build-essential libffi-dev zlib1g-dev"
+ENV BUILD_DEPS="${BUILD_DEPS} quilt"
 ENV TEST_DIR=/tests
 
 ENV OPENSSL_VERSION="1.0.2u"
 
+
+ENV QUILT_NO_DIFF_INDEX=1
+ENV QUILT_NO_DIFF_TIMESTAMPS=1
+ENV QUILT_REFRESH_ARGS="-p ab --no-timestamps --no-index"
+ENV QUILT_PATCH_OPTS="--reject-format=unified"
 ADD patches-"${OPENSSL_VERSION}"/* "${OPENSSL_PATCH_DIR}"/
 
 ADD build-openssl.sh /sbin/

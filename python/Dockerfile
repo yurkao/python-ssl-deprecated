@@ -11,6 +11,7 @@ ENV LANG=C.UTF-8
 ENV BUILD_DEPS="build-essential gdb lcov libbz2-dev libexpat1-dev libffi-dev libgdbm-dev liblz-dev"
 ENV BUILD_DEPS="${BUILD_DEPS} liblzma-dev libncurses5-dev libreadline6-dev libsqlite3-dev "
 ENV BUILD_DEPS="${BUILD_DEPS} lzma lzma-dev make tk-dev uuid-dev wget zlib1g-dev"
+ENV BUILD_DEPS="${BUILD_DEPS} quilt"
 ENV PYTHON_PATCH_DIR="/python.patches"
 
 ADD patches-"${PYTHON_VERSION}"/* "${PYTHON_PATCH_DIR}"/
