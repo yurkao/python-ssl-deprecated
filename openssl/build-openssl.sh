@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
 cleanup() {
+  cd /  # release BUILD_DIR
   rm -rf "${BUILD_DIR}" "${SSL_CONF_DIR}"/man "${INSTALL_DIR}"/share/man
   # shellcheck disable=SC2086
   ${PKG_DEL} ${BUILD_DEPS} && ${CLEAR_CACHE} && rm -rf /var/lib/apt/lists
@@ -8,9 +9,9 @@ cleanup() {
 
 trap cleanup EXIT
 
-$CACHE_UPDATE
+${CACHE_UPDATE}
 # shellcheck disable=SC2086
-$PKG_ADD ${BUILD_DEPS}
+${PKG_ADD} ${BUILD_DEPS}
 
 export INSTALL_OPTS="--prefix=${INSTALL_DIR}/ --openssldir=${SSL_CONF_DIR}/"
 

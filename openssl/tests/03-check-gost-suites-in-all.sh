@@ -5,7 +5,7 @@
 rv=0
 msg="Checking GOST ciphers availability in ALL ciphers"
 start "$msg"
-openssl ciphers ALL | grep -i gost || rv=1
+openssl ciphers ALL | grep -i gost > /dev/null || rv=1
 if [ $rv -ne 0 ] ; then
   failed "$msg"
   rv=1

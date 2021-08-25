@@ -28,33 +28,37 @@ remove_py_cache() {
 }
 
 cleanup() {
+  cd /
   rm -rf "${OPENSSL_DIR}/include/openssl"
-  rm -f python.tar.xz
-  rm -rf "${PYTHON_SRC_DIR}" "${BUILD_DIR}"
+  rm -f  /tmp/*.pem  # test certificates
+  rm -f "${BUILD_DIR}"/python.tar.xz
+  rm -rf "${PYTHON_SRC_DIR}" "${BUILD_DIR}" "${INSTALL_DIR}"/include
+  # remove static libs to preserve image space
+  find "${INSTALL_DIR}" -type f -name '*.a' -print0 | xargs --no-run-if-empty -0 rm -f
   remove_py_tests
   remove_py_cache
 # shellcheck disable=SC2086
-  ${PKG_DEL} ${BUILD_DEPS} && ${CLEAR_CACHE} && rm -rf /var/lib/apt/lists
+  ${PKG_DEL} ${BUILD_DEPS} >/dev/null 2>&1 && ${CLEAR_CACHE} && rm -rf /var/lib/apt/lists
 }
 
 trap cleanup EXIT
 
-$CACHE_UPDATE
+${CACHE_UPDATE}
 # shellcheck disable=SC2086
-$PKG_ADD ${BUILD_DEPS}
-$PKG_ADD ca-certificates tzdata
+${PKG_ADD} ${BUILD_DEPS}
+${PKG_ADD} ca-certificates tzdata
 
 export LDFLAGS="-L${INSTALL_DIR}/lib/ -L${INSTALL_DIR}/lib64/ -Wl,--strip-all "
 export LD_LIBRARY_PATH="${INSTALL_DIR}/lib/:${INSTALL_DIR}/lib64/"
-export CPPFLAGS="-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/openssl -I/usr/include -I/usr/include/uuid"
 export CFLAGS="-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/openssl -I/usr/include -I/usr/include/uuid"
+export CPPFLAGS="${CFLAGS}"
 export EXTRA_CFLAGS="-DTHREAD_STACK_SIZE=0x100000"
 
 BUILD_DIR="$(mktemp -d)"
-wget --quiet -O /tmp/python.tar.xz "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz"
+wget --quiet -O "${BUILD_DIR}"/python.tar.xz "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz"
 mkdir -p "${BUILD_DIR}"
 
-tar -xJC "${BUILD_DIR}" --strip-components=1 -f /tmp/python.tar.xz
+tar -xJC "${BUILD_DIR}" --strip-components=1 -f "${BUILD_DIR}"/python.tar.xz
 cd "${BUILD_DIR}" || exit 1
 
 export LD_RUN_PATH="${OPENSSL_DIR}/lib"
