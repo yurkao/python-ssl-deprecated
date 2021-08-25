@@ -1,38 +1,72 @@
 #!/usr/bin/env sh
 
+remove_py_tests() {
+  for name in test tests idle_test; do
+    find "${INSTALL_DIR}" -type d name "${name}"  -exec rm -rf '{}' \;
+  done
+}
+
+remove_py_cache() {
+  for ext in test pyc pyo; do
+    find "${INSTALL_DIR}" -type f name "*.${ext}"  -delete
+  done
+}
+
 cleanup() {
   rm -rf "${OPENSSL_DIR}/include/openssl"
+  rm -f python.tar.xz
   rm -rf "${PYTHON_SRC_DIR}"
+  remove_py_tests
+  remove_py_cache
 # shellcheck disable=SC2086
   ${PKG_DEL} ${BUILD_DEPS} && ${CLEAR_CACHE} && rm -rf /var/lib/apt/lists
 }
 
 trap cleanup EXIT
 
-BUILD_DIR="$(mktemp -d)"
-export LDFLAGS="-L${INSTALL_DIR}/lib/ -L${INSTALL_DIR}/lib64/ -Wl,--strip-all"
-export LD_LIBRARY_PATH="${INSTALL_DIR}/lib/:${INSTALL_DIR}/lib64/"
-export CPPFLAGS="-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/openssl"
-export CFLAGS="-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/openssl"
-export EXTRA_CFLAGS="-DTHREAD_STACK_SIZE=0x100000"
-
 $CACHE_UPDATE
 # shellcheck disable=SC2086
 $PKG_ADD ${BUILD_DEPS}
 $PKG_ADD ca-certificates tzdata
-set -x
-wget --quiet -O python.tar.xz "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz"
+
+export LDFLAGS="-L${INSTALL_DIR}/lib/ -L${INSTALL_DIR}/lib64/ -Wl,--strip-all "
+export LD_LIBRARY_PATH="${INSTALL_DIR}/lib/:${INSTALL_DIR}/lib64/"
+export CPPFLAGS="-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/openssl -I/usr/include -I/usr/include/uuid"
+export CFLAGS="-I${INSTALL_DIR}/include -I${INSTALL_DIR}/include/openssl -I/usr/include -I/usr/include/uuid"
+export EXTRA_CFLAGS="-DTHREAD_STACK_SIZE=0x100000"
+
+BUILD_DIR="$(mktemp -d)"
+wget --quiet -O /tmp/python.tar.xz "https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz"
 mkdir -p "${BUILD_DIR}"
-tar -xJC "${BUILD_DIR}" --strip-components=1 -f python.tar.xz
-rm python.tar.xz
+
+tar -xJC "${BUILD_DIR}" --strip-components=1 -f /tmp/python.tar.xz
 cd "${BUILD_DIR}" || exit 1
 
 make clean || true
+export LD_RUN_PATH="${OPENSSL_DIR}/lib"
+export MOD_SETUP="Modules/Setup"
+# shellcheck disable=SC2129
+echo '_socket socketmodule.c' >> "${MOD_SETUP}"
+echo "SSL=${OPENSSL_DIR}"  >> "${MOD_SETUP}"
+# shellcheck disable=SC1003
+echo '_ssl _ssl.c \' >> "${MOD_SETUP}"
+# shellcheck disable=SC1003
+# shellcheck disable=SC2016
+echo '  -DUSE_SSL -I$(SSL)/include -I$(SSL)/include/openssl \'  >> "${MOD_SETUP}"
+# shellcheck disable=SC2016
+echo '  -L$(SSL)/lib -lssl -lcrypto'  >> "${MOD_SETUP}"
+
 ARCH="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"
-./configure --build="${ARCH}" --enable-loadable-sqlite-extensions \
+
+XARGS="xargs --no-run-if-empty -t -0 -n 1"
+find "${PYTHON_PATCH_DIR}"/ -maxdepth 1 -type f -name '*.patch' -print0  | sort -z | ${XARGS} patch -p0 -i
+
+./configure --build="${ARCH}" -C --enable-loadable-sqlite-extensions \
   --enable-optimizations --enable-option-checking=fatal \
   --with-system-expat --with-ssl-default-suites=openssl \
-  --with-openssl="${INSTALL_DIR}" --prefix="${INSTALL_DIR}"
+  --with-openssl="${OPENSSL_DIR}" --prefix="${INSTALL_DIR}" --enable-shared
 
 make
+make test
 make install
+ldconfig

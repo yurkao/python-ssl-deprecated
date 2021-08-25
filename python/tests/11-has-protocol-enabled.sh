@@ -7,7 +7,7 @@
 for protocol in $PY_SSL_PROTOCOLS; do
   test_name="Test ssl.HAS_${protocol}"
   start "${test_name}"
-  if ! python -c "import ssl; assert ssl.HAS_${protocol}" > /dev/null; then
+  if ! "${PYTHON}" -c "import ssl; assert ssl.HAS_${protocol}" > /dev/null; then
     failed "${test_name}"
     rv=1
   else

@@ -8,10 +8,10 @@ rv=0
 for protocol in $PY_SSL_PROTOCOLS; do
   test_name="Test ssl.PROTOCOL_${protocol} property"
   start "${test_name}"
-  if ! python -c "import ssl; ssl.PROTOCOL_${protocol}" > /dev/null; then
+  if ! "${PYTHON}" -c "import ssl; ssl.PROTOCOL_${protocol}" > /dev/null; then
     failed "${test_name}"
     rv=1
-  else:
+  else
     ok "${test_name}"
   fi
 done

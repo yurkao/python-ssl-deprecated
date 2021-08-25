@@ -1,0 +1,61 @@
+--- Modules/_ssl.c.org  2021-08-24 22:20:39.111196000 +0000
++++ Modules/_ssl.c      2021-08-24 22:48:59.051790000 +0000
+@@ -302,7 +302,7 @@
+  * !aDSS: no authentication with discrete logarithm DSA algorithm
+  * !SRP:!PSK: no secure remote password or pre-shared key authentication
+  */
+-  #define PY_SSL_DEFAULT_CIPHER_STRING "DEFAULT:!aNULL:!eNULL:!MD5:!3DES:!DES:!RC4:!IDEA:!SEED:!aDSS:!SRP:!PSK"
++  #define PY_SSL_DEFAULT_CIPHER_STRING "ALL:EXPORT:LOW:NULL:SSLv2"
+ #elif PY_SSL_DEFAULT_CIPHERS == 2
+ /* Ignored in SSLContext constructor, only used to as _ssl.DEFAULT_CIPHER_STRING */
+   #define PY_SSL_DEFAULT_CIPHER_STRING SSL_DEFAULT_CIPHER_LIST
+@@ -351,6 +351,7 @@
+
+ enum py_proto_version {
+     PY_PROTO_MINIMUM_SUPPORTED = -2,
++    PY_PROTO_SSLv2 = SSL2_VERSION,
+     PY_PROTO_SSLv3 = SSL3_VERSION,
+     PY_PROTO_TLSv1 = TLS1_VERSION,
+     PY_PROTO_TLSv1_1 = TLS1_1_VERSION,
+@@ -366,7 +367,9 @@
+  * available version, and the other way around. We have to figure out the
+  * minimum and maximum available version on our own and hope for the best.
+  */
+-#if defined(SSL3_VERSION) && !defined(OPENSSL_NO_SSL3)
++#if defined(SSL2_VERSION) && !defined(OPENSSL_NO_SSL2)
++    PY_PROTO_MINIMUM_AVAILABLE = PY_PROTO_SSLv2,
++#elif defined(SSL3_VERSION) && !defined(OPENSSL_NO_SSL3)
+     PY_PROTO_MINIMUM_AVAILABLE = PY_PROTO_SSLv3,
+ #elif defined(TLS1_VERSION) && !defined(OPENSSL_NO_TLS1)
+     PY_PROTO_MINIMUM_AVAILABLE = PY_PROTO_TLSv1,
+@@ -390,6 +393,8 @@
+     PY_PROTO_MAXIMUM_AVAILABLE = PY_PROTO_TLSv1,
+ #elif defined(SSL3_VERSION) && !defined(OPENSSL_NO_SSL3)
+     PY_PROTO_MAXIMUM_AVAILABLE = PY_PROTO_SSLv3,
++#elif defined(SSL2_VERSION) && !defined(OPENSSL_NO_SSL2)
++    PY_PROTO_MAXIMUM_AVAILABLE = PY_PROTO_SSLv2,
+ #else
+     #error "PY_PROTO_MAXIMUM_AVAILABLE not found"
+ #endif
+@@ -3111,6 +3116,11 @@
+
+     PySSL_BEGIN_ALLOW_THREADS
+     switch(proto_version) {
++#if defined(SSL2_VERSION) && !defined(OPENSSL_NO_SSL2)
++    case PY_SSL_VERSION_SSL2:
++        ctx = SSL_CTX_new(SSLv2_method());
++        break;
++#endif
+ #if defined(SSL3_VERSION) && !defined(OPENSSL_NO_SSL3)
+     case PY_SSL_VERSION_SSL3:
+         ctx = SSL_CTX_new(SSLv3_method());
+@@ -3236,7 +3246,7 @@
+ #endif
+     } else {
+         /* SSLv2 needs MD5 */
+-        result = SSL_CTX_set_cipher_list(ctx, "HIGH:!aNULL:!eNULL");
++        result = SSL_CTX_set_cipher_list(ctx, PY_SSL_DEFAULT_CIPHER_STRING);
+     }
+     if (result == 0) {
+         Py_DECREF(self);
+PY_SSL_DEFAULT_CIPHER_STRING
