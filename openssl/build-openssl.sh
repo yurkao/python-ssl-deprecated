@@ -12,7 +12,6 @@ $CACHE_UPDATE
 # shellcheck disable=SC2086
 $PKG_ADD ${BUILD_DEPS}
 
-export SSL_CONF_DIR="${INSTALL_DIR}"
 export INSTALL_OPTS="--prefix=${INSTALL_DIR}/ --openssldir=${SSL_CONF_DIR}/"
 
 BUILD_DIR="$(mktemp -d)"
@@ -24,7 +23,11 @@ wget --quiet  -O "${BUILD_DIR}/openssl-${OPENSSL_VERSION}.tar.gz" "https://opens
 tar zxf "${BUILD_DIR}/openssl-${OPENSSL_VERSION}.tar.gz" --strip-components=1 -C "${BUILD_DIR}/openssl-${OPENSSL_VERSION}"
 cd "${BUILD_DIR}/openssl-${OPENSSL_VERSION}" || exit 1
 
-export SSL_BUILD_OPTS="${INSTALL_OPTS} -DOPENSSL_USE_BUILD_DATE"
+XARGS="xargs --no-run-if-empty -t -0 -n 1"
+find "${OPENSSL_PATCH_DIR}"/ -maxdepth 1 -type f -name '*.patch' -print0 | sort -z | ${XARGS} patch -p0 -i
+
+export LD_FLAGS="-Wl,--enable-new-dtags,-rpath=${INSTALL_DIR}/lib"
+export SSL_BUILD_OPTS="${INSTALL_OPTS} -DOPENSSL_USE_BUILD_DATE -Wl,--enable-new-dtags,-rpath=${INSTALL_DIR}/lib"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-zlib enable-ssl2 enable-ssl3"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-npn enable-psk enable-weak-ssl-ciphers enable-srp"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-ssl-trace enable-rc5 enable-rc2 enable-3des enable-des"
@@ -38,7 +41,12 @@ export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-export enable-export40 enable-ex
 # shellcheck disable=SC2155
 export MAKE="make"
 
+${MAKE} clean
 # shellcheck disable=SC2086
-${MAKE} clean && ./config ${SSL_BUILD_OPTS} shared && ${MAKE} depend && ${MAKE} && ${MAKE} install
+./config ${SSL_BUILD_OPTS} shared
+${MAKE} depend
+${MAKE}
+${MAKE} test
+${MAKE} install
 
 ldconfig
