@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 cleanup() {
-  rm -rf "${BUILD_DIR}/openssl-${OPENSSL_VERSION}"* "${SSL_CONF_DIR}"/man "${INSTALL_DIR}"/share/man
+  rm -rf "${BUILD_DIR}" "${SSL_CONF_DIR}"/man "${INSTALL_DIR}"/share/man
   # shellcheck disable=SC2086
   ${PKG_DEL} ${BUILD_DEPS} && ${CLEAR_CACHE} && rm -rf /var/lib/apt/lists
 }
@@ -46,7 +46,12 @@ ${MAKE} clean
 ./config ${SSL_BUILD_OPTS} shared
 ${MAKE} depend
 ${MAKE}
+ENGINES_DIR="${BUILD_DIR}/openssl-${OPENSSL_VERSION}/engines"
+# enable host during tests cannot leave it with gost enabled - dynamic_path had to be set correctly
+sed -ri "s@dynamic_path[ ]*=[ ]*(.+)/libgost.so@dynamic_path = ${ENGINES_DIR}/ccgost/libgost.so@g" apps/openssl.cnf
 ${MAKE} test
+# set (fix) GOST SO installation path
+sed -ri "s@dynamic_path[ ]*=[ ]*(.+)/libgost.so@dynamic_path = ${INSTALL_DIR}/lib/engines/libgost.so@g" apps/openssl.cnf
 ${MAKE} install
 
 ldconfig
