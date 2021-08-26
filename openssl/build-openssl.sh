@@ -51,8 +51,8 @@ ENGINES_DIR="${BUILD_DIR}/openssl-${OPENSSL_VERSION}/engines"
 # enable host during tests cannot leave it with gost enabled - dynamic_path had to be set correctly
 sed -ri "s@dynamic_path[ ]*=[ ]*(.+)/libgost.so@dynamic_path = ${ENGINES_DIR}/ccgost/libgost.so@g" apps/openssl.cnf
 ${MAKE} test
-# set (fix) GOST SO installation path
-sed -ri "s@dynamic_path[ ]*=[ ]*(.+)/libgost.so@dynamic_path = ${INSTALL_DIR}/lib/engines/libgost.so@g" apps/openssl.cnf
 ${MAKE} install
+# set (fix) GOST SO installation path
+sed -ri "s@dynamic_path[ ]*=[ ]*(.+)/libgost.so@dynamic_path = ${INSTALL_DIR}/lib/engines/libgost.so@g" "${INSTALL_DIR}"/openssl.cnf
 
 ldconfig
