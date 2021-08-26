@@ -29,6 +29,9 @@ ADD build-openssl.sh /sbin/
 RUN sh -e /sbin/build-openssl.sh
 RUN ${CACHE_UPDATE} && $PKG_ADD ca-certificates && ${CLEAR_CACHE} && rm -rf /var/lib/apt/lists
 
+# set it here - do not intefer with build and build tests
+ENV OPENSSL_CONF="${OPENSSL_DIR}"/openssl.cnf
+
 ADD run-tests /sbin/
 ADD tests ${TEST_DIR}/
 RUN chmod 755 /sbin/run-tests && run-tests
