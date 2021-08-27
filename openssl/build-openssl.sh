@@ -38,6 +38,7 @@ export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-ec_nistp_64_gcc_128"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-aesgcm enable-aes-enable enable-dh enable-adh enable-edh enable-dhe"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-export enable-export40 enable-export56 enable-export1024 enable-srp enable-gost"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-dso enable-ccgost"
+export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-comp"
 
 # shellcheck disable=SC2155
 export MAKE="make"
