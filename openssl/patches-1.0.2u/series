@@ -1,3 +1,4 @@
+05-enable-sweet32.patch
 04-enable-ccs.patch
 03-enable-heartbleed.patch
 02-enable-gost-engine.patch

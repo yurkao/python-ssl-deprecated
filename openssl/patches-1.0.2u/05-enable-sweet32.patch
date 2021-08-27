@@ -1,0 +1,11 @@
+--- a/ssl/s3_lib.c	(revision 6f7cd63163f5ff1cbdc489718c72938701c2cdfe)
++++ a/ssl/s3_lib.c	(date 1576846961000)
+@@ -329,7 +329,7 @@
+      SSL_3DES,
+      SSL_SHA1,
+      SSL_SSLV3,
+-     SSL_NOT_EXP | SSL_MEDIUM | SSL_FIPS,
++     SSL_NOT_EXP | SSL_HIGH | SSL_FIPS,
+      SSL_HANDSHAKE_MAC_DEFAULT | TLS1_PRF,
+      112,
+      168,
