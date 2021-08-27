@@ -1,0 +1,22 @@
+Enable SSL/TLS LOGJAM (CVE-2015-4000)
+Export
+--- a/ssl/s3_lib.c	(revision 6f7cd63163f5ff1cbdc489718c72938701c2cdfe)
++++ b/ssl/s3_lib.c	(date 1630082058172)
+@@ -339,7 +339,7 @@
+ /* Cipher 0B */
+ #ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
+     {
+-     0,
++     1,
+      SSL3_TXT_DH_DSS_DES_40_CBC_SHA,
+      SSL3_CK_DH_DSS_DES_40_CBC_SHA,
+      SSL_kDHd,
+@@ -391,7 +391,7 @@
+ /* Cipher 0E */
+ #ifndef OPENSSL_NO_WEAK_SSL_CIPHERS
+     {
+-     0,
++     1,
+      SSL3_TXT_DH_RSA_DES_40_CBC_SHA,
+      SSL3_CK_DH_RSA_DES_40_CBC_SHA,
+      SSL_kDHr,
