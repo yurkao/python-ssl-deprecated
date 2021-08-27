@@ -16,7 +16,7 @@ ENV BUILD_DEPS="make wget build-essential libffi-dev zlib1g-dev"
 ENV BUILD_DEPS="${BUILD_DEPS} quilt"
 ENV TEST_DIR=/tests
 
-ENV OPENSSL_VERSION="1.0.2u"
+ARG OPENSSL_VERSION
 
 
 ENV QUILT_NO_DIFF_INDEX=1
