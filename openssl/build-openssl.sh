@@ -4,7 +4,7 @@ cleanup() {
   cd /  # release BUILD_DIR
   rm -rf "${BUILD_DIR}" "${SSL_CONF_DIR}"/man "${INSTALL_DIR}"/share/man
   # shellcheck disable=SC2086
-  ${PKG_DEL} ${BUILD_DEPS}  && ${CLEAR_CACHE}  >/dev/null 2>/dev/null && rm -rf /var/lib/apt/lists
+  ${PKG_DEL} ${BUILD_DEPS}  >/dev/null 2>/dev/null && ${CLEAR_CACHE}  && rm -rf /var/lib/apt/lists
 }
 
 trap cleanup EXIT
