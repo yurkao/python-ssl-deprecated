@@ -1,6 +1,22 @@
 S_CLIENT="openssl s_client -connect"
 # shellcheck disable=SC2034
 SSL_PROTOCOLS="ssl2 ssl3 tls1 tls1_1 tls1_2"
+# shellcheck disable=SC2034
+CA_KEY=/tmp/ca.key
+# shellcheck disable=SC2034
+CA_CRT=/tmp/ca.crt
+
+test_port() {
+    case $1 in
+        'ssl2') echo '1443';;
+        'ssl3') echo '1444';;
+        'tls1') echo '1010';;
+        'tls1_1') echo '1011';;
+        'tls1_2') echo '1012';;
+        *) exit 1;;
+    esac
+}
+
 start() {
   echo "$* ..."
 }
