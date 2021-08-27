@@ -1,0 +1,13 @@
+Enable SSL/TLS compression AKA CRIME, TLS (CVE-2012-4929).
+set SSL_OP_NO_COMPRESSION to noop
+--- a/ssl/ssl.h	(revision 6f7cd63163f5ff1cbdc489718c72938701c2cdfe)
++++ a/ssl/ssl.h	(date 1630076006260)
+@@ -620,7 +620,7 @@
+ /* As server, disallow session resumption on renegotiation */
+ # define SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION   0x00010000L
+ /* Don't use compression even if supported */
+-# define SSL_OP_NO_COMPRESSION                           0x00020000L
++# define SSL_OP_NO_COMPRESSION                           0x00000000L
+ /* Permit unsafe legacy renegotiation */
+ # define SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION        0x00040000L
+ /* If set, always create a new key when using tmp_ecdh parameters */
