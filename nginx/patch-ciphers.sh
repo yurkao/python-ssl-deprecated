@@ -17,7 +17,7 @@ if [ -n "${USE_DHPARAM}" ]; then
   sed -ri "s@#ssl_dhparam.+;@ssl_dhparam ${NGINX_DIR}/dhparam.pem;@g"  "${NGINX_DIR}"/conf/nginx.conf
 fi
 
-SUBJECT="/C=AU/ST=NSW/L=Sydney/O=MongoDB/OU=root/CN=$(hostname -f)"
+SUBJECT="/C=XY/ST=XY/L=XY/O=XY/OU=root/CN=$(hostname -f)"
 KEY_PATH="${NGINX_DIR}/${NGINX_KEY}"
 CRT_PATH="${NGINX_DIR}/${NGINX_CRT}"
 
