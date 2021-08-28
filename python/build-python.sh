@@ -45,7 +45,7 @@ trap cleanup EXIT
 
 ${CACHE_UPDATE}
 # shellcheck disable=SC2086
-${PKG_ADD} ${BUILD_DEPS}
+${PKG_ADD} ${BUILD_DEPS} >/dev/null 2>&1
 ${PKG_ADD} ca-certificates tzdata
 
 export LDFLAGS="-L${INSTALL_DIR}/lib/ -L${INSTALL_DIR}/lib64/ -Wl,--strip-all "
