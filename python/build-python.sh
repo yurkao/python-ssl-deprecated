@@ -32,7 +32,7 @@ cleanup() {
   rm -rf "${OPENSSL_DIR}/include/openssl"
   rm -f  /tmp/*.pem  # test certificates
   rm -f "${BUILD_DIR}"/python.tar.xz
-  rm -rf "${PYTHON_SRC_DIR}" "${BUILD_DIR}" "${INSTALL_DIR}"/include
+  rm -rf "${BUILD_DIR}" "${INSTALL_DIR}"/include
   # remove static libs to preserve image space
   find "${INSTALL_DIR}" -type f -name '*.a' -print0 | xargs --no-run-if-empty -0 rm -f
   remove_py_tests
