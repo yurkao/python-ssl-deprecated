@@ -1,4 +1,5 @@
-FROM yurkao/openssl:1.0.2u
+ARG OPENSSL_VERSION="1.0.2u-vuln"
+FROM yurkao/openssl:${OPENSSL_VERSION}
 ENV PYTHON_VERSION=3.9.6
 ENV GPG_KEY=E3FF2839C048B25C084DEBE9B26995E310250568
 # if this is called "PIP_VERSION", pip explodes with "ValueError: invalid truth value '<VERSION>'"
