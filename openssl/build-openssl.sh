@@ -26,7 +26,7 @@ cd "${BUILD_DIR}/openssl-${OPENSSL_VERSION}" || exit 1
 
 rm -rf .pc; QUILT_PATCHES="${OPENSSL_PATCH_DIR}" quilt push -a
 
-export LD_FLAGS="-Wl,--enable-new-dtags,-rpath=${INSTALL_DIR}/lib"
+export LD_FLAGS="-Wl,--enable-new-dtags,-rpath=${INSTALL_DIR}/lib -z"
 export SSL_BUILD_OPTS="${INSTALL_OPTS} -DOPENSSL_USE_BUILD_DATE -Wl,--enable-new-dtags,-rpath=${INSTALL_DIR}/lib"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-zlib enable-ssl2 enable-ssl3"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-npn enable-psk enable-weak-ssl-ciphers enable-srp"
@@ -38,7 +38,7 @@ export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-ec_nistp_64_gcc_128"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-aesgcm enable-aes-enable enable-dh enable-adh enable-edh enable-dhe"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-export enable-export40 enable-export56 enable-export1024 enable-srp enable-gost"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-dso enable-ccgost"
-export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-comp"
+export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-comp enable-zlib-dynamic"
 
 # shellcheck disable=SC2155
 export MAKE="make"
