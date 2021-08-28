@@ -12,11 +12,9 @@ ENV CACHE_UPDATE="apt-get update -qq"
 ENV PKG_ADD='apt install -y -qq'
 ENV PKG_DEL="apt autoremove -y --purge"
 ENV CLEAR_CACHE="apt-get clean"
-ENV BUILD_DEPS="make wget build-essential libffi-dev zlib1g-dev bsdextrautils"
+ENV BUILD_DEPS="make wget build-essential libffi-dev zlib1g-dev bsdextrautils ca-certificates"
 ENV BUILD_DEPS="${BUILD_DEPS} quilt"
 ENV TEST_DIR=/tests
-# ca-certificates are reuired for downloading and post-build testing
-RUN ${CACHE_UPDATE} && ${PKG_ADD} ca-certificates
 
 ARG OPENSSL_VERSION
 
