@@ -1,3 +1,4 @@
+#!/usr/bin/env sh
 cleanup() {
   cd /  # release BUILD_DIR
   rm -rf "${BUILD_DIR}"
