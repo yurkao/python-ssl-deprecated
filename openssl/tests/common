@@ -8,11 +8,11 @@ CA_CRT=/tmp/ca.crt
 
 test_port() {
     case $1 in
-        'ssl2') echo '1443';;
-        'ssl3') echo '1444';;
-        'tls1') echo '1010';;
-        'tls1_1') echo '1011';;
-        'tls1_2') echo '1012';;
+        'ssl2') echo '11443';;
+        'ssl3') echo '11444';;
+        'tls1') echo '11010';;
+        'tls1_1') echo '11011';;
+        'tls1_2') echo '11012';;
         *) exit 1;;
     esac
 }

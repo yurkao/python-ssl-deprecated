@@ -4,8 +4,8 @@
 . "${TEST_DIR}/common"
 rv=0
 start "Checking GOST run-time"
-openssl genpkey -algorithm gost2001 -pkeyopt paramset:A -out seckey.pem > /dev/null || rv=1
-rm -f  seckey.pem
+openssl genpkey -algorithm gost2001 -pkeyopt paramset:A -out /tmp/seckey.pem > /dev/null || rv=1
+rm -f  /tmp/seckey.pem
 if [ $rv -ne 0 ] ; then
   failed "Checking GOST run-time"
   rv=1
