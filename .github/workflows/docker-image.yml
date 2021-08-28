@@ -1,0 +1,23 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the OpenSSL Docker image
+      run: docker build --build-arg OPENSSL_VERSION=1.0.2u -t yurkao/openssl:1.0.2u-vuln openssl
+    - name: Build the Python Docker image
+      run: docker build --build-arg OPENSSL_VERSION=1.0.2u-vuln -t yurkao/python:3.9.6-1.0.2u-vuln python
+    - name: Build the NGINX Docker image
+      run: docker build --build-arg OPENSSL_VERSION=1.0.2u-vuln -t yurkao/nginx:1.0.2u-vuln nginx
+      
