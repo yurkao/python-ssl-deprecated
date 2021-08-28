@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  server:
+    container_name: 'server'
+    image: "yurkao/nginx:1.0.2u-vuln"
+    hostname: server
+    command: sh -e /sbin/start-nginx.sh
+    environment:
+      - CIPHERS=ALL:NULL
+      - USE_DHPARAM=1
+      - DH_BITS=96
+      - RSA_BITS=1024
+    ports:
+      - "1443:443/tcp"
+  testssl:
+    container_name: 'testssl'
+    image: "drwetter/testssl.sh:latest"
+    hostname: testssl.client
+    entrypoint: ["testssl.sh", "--full", "https://server"]
+    depends_on:
+      - server

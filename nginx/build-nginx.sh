@@ -27,4 +27,3 @@ BUILD_OPTS="--with-http_ssl_module --with-stream --with-debug --with-http_ssl_mo
 
 make
 make install
-yes AB | openssl req -x509 -newkey rsa:2048 -keyout "${NGINX_DIR}/${NGINX_KEY}" -out "${NGINX_DIR}/${NGINX_CRT}" -days 365 -nodes > /dev/null
