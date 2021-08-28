@@ -8,6 +8,7 @@ ENV PATH="${NGINX_DIR}/bin:${NGINX_DIR}/sbin:${PATH}"
 ENV NGINX_KEY=nginx.key
 ENV NGINX_CRT=nginx.crt
 
+USER root
 ADD build-nginx.sh /sbin
 RUN sh -e /sbin/build-nginx.sh
 ADD nginx.conf "${NGINX_DIR}/conf/"
