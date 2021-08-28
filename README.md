@@ -3,7 +3,8 @@ python recompiled with vulnerable OpenSSL including weak protocols and weak ciph
 
 **This is for testing and legal PT only.**
 
-## Vulnurabilities backported (in openssl 1.0.2u):
+## OpenSSL code base: 1.0.2u
+## Vulnurabilities backported from previous releases of OpenSSL:
 * Heartbleed (CVE-2014-0160)
 * CCS (CVE-2014-0224)
 * SWEET32 (CVE-2016-2183)
