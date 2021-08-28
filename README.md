@@ -9,7 +9,9 @@ python recompiled with vulnerable OpenSSL including weak protocols and weak ciph
 * CCS (CVE-2014-0224)
 * SWEET32 (CVE-2016-2183)
 * CRIME, TLS (CVE-2012-4929)
+* LOGJAM (CVE-2015-4000)
 * Include NULL ciphers by default
+* Export protocols enabled by default
 
 ## Backported weak protocols
 * SSLv2
