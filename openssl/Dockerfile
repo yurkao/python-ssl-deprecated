@@ -9,8 +9,8 @@ ENV SSL_CONF_DIR="${OPENSSL_DIR}"
 ENV OPENSSL_PATCH_DIR="/openssl.patches"
 ENV TEST_DIR=/tests
 ENV CACHE_UPDATE="apt-get update -qq"
-ENV PKG_ADD="apt-get install -y -qq -o=Dpkg::Use-Pty=0 "
-ENV PKG_DEL="apt-get purge --auto-remove -y"
+ENV PKG_ADD='apt install -y -qq'
+ENV PKG_DEL="apt autoremove -y --purge"
 ENV CLEAR_CACHE="apt-get clean"
 ENV BUILD_DEPS="make wget build-essential libffi-dev zlib1g-dev"
 ENV BUILD_DEPS="${BUILD_DEPS} quilt"
@@ -18,6 +18,7 @@ ENV TEST_DIR=/tests
 
 ARG OPENSSL_VERSION
 
+ADD 02-no-recommends /etc/apt/apt.conf.d/
 
 ENV QUILT_NO_DIFF_INDEX=1
 ENV QUILT_NO_DIFF_TIMESTAMPS=1
