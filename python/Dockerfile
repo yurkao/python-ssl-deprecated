@@ -29,7 +29,7 @@ ENV BUILD_DEPS="make wget perl build-essential quilt ca-certificates"
 ENV BUILD_DEPS="${BUILD_DEPS} zlib1g-dev libexpat1-dev libffi-dev libbz2-dev liblzma-dev libreadline-dev"
 ENV BUILD_DEPS="${BUILD_DEPS} uuid-dev libncurses5-dev libsqlite3-dev"
 # avoid test_asyncio Servname not supported for ai_socktype exception
-#ENV BUILD_DEPS="${BUILD_DEPS} netbase libssl-dev"
+ENV BUILD_DEPS="${BUILD_DEPS} netbase"
 ENV PYTHON_PATCH_DIR="/python.patches"
 
 USER root
