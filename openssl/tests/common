@@ -54,3 +54,23 @@ test_ssl_cipher() {
   ok "$msg"
   return 0
 }
+
+apply_patches() {
+  local patch_dir="$1"
+  if [ ! -f "${patch_dir}/series" ]; then
+    echo "No patch series detected on ${patch_dir}"
+    echo "Skip patching..."
+    return 0
+  fi
+  echo "Patch series detected on ${patch_dir}"
+
+  if [ ! -s "${patch_dir}/series" ]; then
+    echo "Patch series is empty on ${patch_dir}"
+    echo "Skip patching..."
+    return 0
+  fi
+  echo "Patch series is NOT empty on ${patch_dir}"
+  echo "Patching..."
+
+  rm -rf .pc; QUILT_PATCHES="${patch_dir}" quilt push -a
+}

@@ -1,5 +1,5 @@
-ARG OPENSSL_VERSION="1.0.2u-vuln"
-FROM yurkao/openssl:1.0.2u-vuln
+ARG OPENSSL_VERSION
+FROM yurkao/openssl:${OPENSSL_VERSION}
 
 ARG NGINX_VERSION="1.18.0"
 ENV BUILD_DEPS="${BUILD_DEPS} libpcre3-dev"

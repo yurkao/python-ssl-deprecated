@@ -1,10 +1,21 @@
 #!/usr/bin/env sh
 
+. /tests/common
+
+rv=1
 cleanup() {
   cd /  # release BUILD_DIR
+  if [ $rv -ne 0 ]; then
+    echo "Not cleaning up: exited with failure"
+    return 0
+  fi
+  echo "Performing clean-up..."
+  # remove static libs to preserve space
+  find "${OPENSSL_DIR}/lib" -type f -name 'lib*.a' -delete
   rm -rf "${BUILD_DIR}" "${SSL_CONF_DIR}"/man "${INSTALL_DIR}"/share/man
   # shellcheck disable=SC2086
   ${PKG_DEL} ${BUILD_DEPS}  >/dev/null 2>/dev/null && ${CLEAR_CACHE}  && rm -rf /var/lib/apt/lists
+  return 0
 }
 
 trap cleanup EXIT
@@ -23,11 +34,13 @@ wget --quiet  -O "${BUILD_DIR}/openssl-${OPENSSL_VERSION}.tar.gz" "https://opens
 # TODO[yo: check signature
 tar zxf "${BUILD_DIR}/openssl-${OPENSSL_VERSION}.tar.gz" --strip-components=1 -C "${BUILD_DIR}/openssl-${OPENSSL_VERSION}"
 cd "${BUILD_DIR}/openssl-${OPENSSL_VERSION}" || exit 1
+${PKG_DEL} ca-certificates
 
-rm -rf .pc; QUILT_PATCHES="${OPENSSL_PATCH_DIR}" quilt push -a
+apply_patches "${OPENSSL_PATCH_DIR}"
 
-export LD_FLAGS="-Wl,--enable-new-dtags,-rpath=${INSTALL_DIR}/lib -z"
-export SSL_BUILD_OPTS="${INSTALL_OPTS} -DOPENSSL_USE_BUILD_DATE -Wl,--enable-new-dtags,-rpath=${INSTALL_DIR}/lib"
+
+export LD_FLAGS="-Wl,--enable-new-dtags,-rpath=${INSTALL_DIR}/lib -z -Wl,--strip-all"
+export SSL_BUILD_OPTS="${INSTALL_OPTS} -DOPENSSL_USE_BUILD_DATE -Wl,--enable-new-dtags"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-zlib enable-ssl2 enable-ssl3"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-npn enable-psk enable-weak-ssl-ciphers enable-srp"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-ssl-trace enable-rc5 enable-rc2 enable-3des enable-des"
@@ -38,7 +51,7 @@ export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-ec_nistp_64_gcc_128"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-aesgcm enable-aes-enable enable-dh enable-adh enable-edh enable-dhe"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-export enable-export40 enable-export56 enable-export1024 enable-srp enable-gost"
 export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-dso enable-ccgost"
-export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-comp enable-zlib-dynamic"
+export SSL_BUILD_OPTS="${SSL_BUILD_OPTS} enable-comp"
 
 # shellcheck disable=SC2155
 export MAKE="make"
@@ -56,4 +69,7 @@ ${MAKE} install
 # set (fix) GOST SO installation path
 sed -ri "s@dynamic_path[ ]*=[ ]*(.+)/libgost.so@dynamic_path = ${INSTALL_DIR}/lib/engines/libgost.so@g" "${INSTALL_DIR}"/openssl.cnf
 
+
+echo "${OPENSSL_DIR}/lib" > /etc/ld.so.conf.d/openssl.conf
 ldconfig
+rv=0

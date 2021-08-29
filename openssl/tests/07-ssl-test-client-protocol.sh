@@ -8,7 +8,7 @@ for protocol in ${SSL_PROTOCOLS}; do
   msg="Testing SSL/TLS connection on ${port_var} with ${protocol}"
   start "$msg"
 
-  if ! echo | openssl s_client -CAfile "${CA_CRT}" "-${protocol}" -connect  "localhost:${port_var}" > /dev/null; then
+  if ! echo | openssl s_client -CAfile "${CA_CRT}" "-${protocol}" -connect  "$(hostname -f):${port_var}" > /dev/null; then
     rv=1
     failed "$msg"
   else

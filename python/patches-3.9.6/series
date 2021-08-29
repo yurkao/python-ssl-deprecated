@@ -1,1 +1,2 @@
+fix-socket-module-helper.diff
 enable-sslv2-protocol-and-ciphers.patch
