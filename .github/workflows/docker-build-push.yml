@@ -16,7 +16,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Log into registry
-      uses: docker/login-action@v2
+      uses: docker/login-action@v1
       with:
         registry: yurkao
         username: ${{ secrets.DH_USERNAME }}
