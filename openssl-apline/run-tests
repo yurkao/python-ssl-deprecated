@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+run-parts  "${TEST_DIR}"
+

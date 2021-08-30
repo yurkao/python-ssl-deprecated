@@ -1,0 +1,14 @@
+Enable SSL/TLS compression AKA CRIME, TLS (CVE-2012-4929).
+set SSL_OP_NO_COMPRESSION to noop
+--- a/ssl/ssl_lib.c     2021-08-28 15:55:21.206048000 +0000
++++ c/ssl/ssl_lib.c     2021-08-28 16:03:15.210352000 +0000
+@@ -2072,6 +2072,9 @@
+     }
+ # endif
+ #endif
++#ifndef OPENSSL_NO_COMP
++    ret->options &= ~SSL_OP_NO_COMPRESSION;
++#endif
+     /*
+      * Default is to connect to non-RI servers. When RI is more widely
+      * deployed might change this.

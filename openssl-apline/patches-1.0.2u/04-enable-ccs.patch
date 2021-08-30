@@ -1,0 +1,118 @@
+--- a/ssl/ssl3.h	(revision 6f7cd63163f5ff1cbdc489718c72938701c2cdfe)
++++ ssl/ssl3.h	(date 1576846961000)
+@@ -471,7 +471,6 @@
+  * Set when the handshake is ready to process peer's ChangeCipherSpec message.
+  * Cleared after the message has been processed.
+  */
+-# define SSL3_FLAGS_CCS_OK                       0x0080
+
+ /* SSL3_FLAGS_SGC_RESTART_DONE is no longer used */
+ # define SSL3_FLAGS_SGC_RESTART_DONE             0x0040
+--- a/ssl/s3_clnt.c	(revision 6f7cd63163f5ff1cbdc489718c72938701c2cdfe)
++++ b/ssl/s3_clnt.c	(date 1576846961000)
+@@ -285,7 +285,6 @@
+             s->state = SSL3_ST_CW_CLNT_HELLO_A;
+             s->ctx->stats.sess_connect++;
+             s->init_num = 0;
+-            s->s3->flags &= ~SSL3_FLAGS_CCS_OK;
+             /*
+              * Should have been reset by ssl3_get_finished, too.
+              */
+@@ -581,8 +580,6 @@
+
+         case SSL3_ST_CR_FINISHED_A:
+         case SSL3_ST_CR_FINISHED_B:
+-            if (!s->s3->change_cipher_spec)
+-                s->s3->flags |= SSL3_FLAGS_CCS_OK;
+             ret = ssl3_get_finished(s, SSL3_ST_CR_FINISHED_A,
+                                     SSL3_ST_CR_FINISHED_B);
+             if (ret <= 0)
+@@ -3711,8 +3708,7 @@
+         !s->session->tlsext_tick)
+         return 0;
+
+-    /* Need to permit this temporarily, in case the next message is Finished. */
+-    s->s3->flags |= SSL3_FLAGS_CCS_OK;
++
+     /*
+      * This function is called when we might get a Certificate message instead,
+      * so permit appropriate message length.
+@@ -3723,7 +3719,6 @@
+                                SSL3_ST_CR_CERT_A,
+                                SSL3_ST_CR_CERT_B,
+                                -1, s->max_cert_list, &ok);
+-    s->s3->flags &= ~SSL3_FLAGS_CCS_OK;
+
+     if (!ok)
+         return -1;
+--- a/ssl/s3_srvr.c	(revision 6f7cd63163f5ff1cbdc489718c72938701c2cdfe)
++++ b/ssl/s3_srvr.c	(date 1576846961000)
+@@ -294,7 +294,6 @@
+
+             s->init_num = 0;
+             s->s3->flags &= ~TLS1_FLAGS_SKIP_CERT_VERIFY;
+-            s->s3->flags &= ~SSL3_FLAGS_CCS_OK;
+             /*
+              * Should have been reset by ssl3_get_finished, too.
+              */
+@@ -710,17 +709,6 @@
+ #if !defined(OPENSSL_NO_TLSEXT) && !defined(OPENSSL_NO_NEXTPROTONEG)
+         case SSL3_ST_SR_NEXT_PROTO_A:
+         case SSL3_ST_SR_NEXT_PROTO_B:
+-            /*
+-             * Enable CCS for NPN. Receiving a CCS clears the flag, so make
+-             * sure not to re-enable it to ban duplicates. This *should* be the
+-             * first time we have received one - but we check anyway to be
+-             * cautious.
+-             * s->s3->change_cipher_spec is set when a CCS is
+-             * processed in s3_pkt.c, and remains set until
+-             * the client's Finished message is read.
+-             */
+-            if (!s->s3->change_cipher_spec)
+-                s->s3->flags |= SSL3_FLAGS_CCS_OK;
+
+             ret = ssl3_get_next_proto(s);
+             if (ret <= 0)
+@@ -732,16 +720,6 @@
+
+         case SSL3_ST_SR_FINISHED_A:
+         case SSL3_ST_SR_FINISHED_B:
+-            /*
+-             * Enable CCS for handshakes without NPN. In NPN the CCS flag has
+-             * already been set. Receiving a CCS clears the flag, so make
+-             * sure not to re-enable it to ban duplicates.
+-             * s->s3->change_cipher_spec is set when a CCS is
+-             * processed in s3_pkt.c, and remains set until
+-             * the client's Finished message is read.
+-             */
+-            if (!s->s3->change_cipher_spec)
+-                s->s3->flags |= SSL3_FLAGS_CCS_OK;
+             ret = ssl3_get_finished(s, SSL3_ST_SR_FINISHED_A,
+                                     SSL3_ST_SR_FINISHED_B);
+             if (ret <= 0)
+--- a/ssl/s3_pkt.c	(revision 6f7cd63163f5ff1cbdc489718c72938701c2cdfe)
++++ b/ssl/s3_pkt.c	(date 1576846961000)
+@@ -1537,14 +1537,6 @@
+             goto f_err;
+         }
+
+-        if (!(s->s3->flags & SSL3_FLAGS_CCS_OK)) {
+-            al = SSL_AD_UNEXPECTED_MESSAGE;
+-            SSLerr(SSL_F_SSL3_READ_BYTES, SSL_R_CCS_RECEIVED_EARLY);
+-            goto f_err;
+-        }
+-
+-        s->s3->flags &= ~SSL3_FLAGS_CCS_OK;
+-
+         rr->length = 0;
+
+         if (s->msg_callback)
+@@ -1672,7 +1664,7 @@
+         i = SSL3_CHANGE_CIPHER_CLIENT_READ;
+
+     if (s->s3->tmp.key_block == NULL) {
+-        if (s->session == NULL || s->session->master_key_length == 0) {
++        if (s->session == NULL) {
+             /* might happen if dtls1_read_bytes() calls this */
+             SSLerr(SSL_F_SSL3_DO_CHANGE_CIPHER_SPEC,
+                    SSL_R_CCS_RECEIVED_EARLY);

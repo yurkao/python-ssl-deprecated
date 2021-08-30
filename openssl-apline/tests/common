@@ -1,0 +1,77 @@
+#!/usr/bin/env sh
+S_CLIENT="openssl s_client -connect"
+# shellcheck disable=SC2034
+SSL_PROTOCOLS="ssl2 ssl3 tls1 tls1_1 tls1_2"
+# shellcheck disable=SC2034
+CA_KEY=/tmp/ca.key
+# shellcheck disable=SC2034
+CA_CRT=/tmp/ca.crt
+
+test_port() {
+    case $1 in
+        'ssl2') echo '11443';;
+        'ssl3') echo '11444';;
+        'tls1') echo '11010';;
+        'tls1_1') echo '11011';;
+        'tls1_2') echo '11012';;
+        *) exit 1;;
+    esac
+}
+
+start() {
+  echo "$* ..."
+}
+
+failed() {
+  echo "$* ... FAIL"
+}
+
+ok() {
+  echo "$* ... DONE"
+}
+
+test_ssl_connection() {
+  local protocol="$1"
+  local server="$2"
+  local ca_path="${3:-/etc/ssl/certs/ca-certificates.crt}"
+  local msg="Testing protocol ${protocol} connection against ${server}"
+  start "$msg"
+  if ! echo | ${S_CLIENT} "${server}" "-${protocol}"  -CAfile "${ca_path}" | grep 'Verify return code: 0 (ok)' > /dev/null; then
+    failed "$msg"
+    return 1
+  fi
+  ok "$msg"
+  return 0
+}
+
+test_ssl_cipher() {
+  local suite="${1}"
+  local msg="Testing cipher suite ${suite}"
+  start "$msg"
+  if ! openssl ciphers "$suite" > /dev/null; then
+      failed "$msg"
+      return 1
+  fi
+  ok "$msg"
+  return 0
+}
+
+apply_patches() {
+  local patch_dir="$1"
+  if [ ! -f "${patch_dir}/series" ]; then
+    echo "No patch series detected on ${patch_dir}"
+    echo "Skip patching..."
+    return 0
+  fi
+  echo "Patch series detected on ${patch_dir}"
+
+  if [ ! -s "${patch_dir}/series" ]; then
+    echo "Patch series is empty on ${patch_dir}"
+    echo "Skip patching..."
+    return 0
+  fi
+  echo "Patch series is NOT empty on ${patch_dir}"
+  echo "Patching..."
+
+  rm -rf .pc; QUILT_PATCHES="${patch_dir}" quilt push -a
+}
