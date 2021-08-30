@@ -1,0 +1,52 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Log into registry
+      uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
+      with:
+        registry: yurkao
+        username: ${{ secrets.DH_USERNAME }}
+        password: ${{ secrets.DH_ACCESS }}
+
+    - name: Build OpenSSL
+      uses: docker/build-push-action@v2
+      with:
+        context: openssl
+        pull: true
+        push: true
+        build-args: |
+          OPENSSL_VERSION=1.0.2u
+        tags: yurkao/openssl:1.0.2u-vuln
+
+    - name: Build Python
+      uses: docker/build-push-action@v2
+      with:
+        context: python
+        pull: true
+        push: true
+        build-args: |
+          OPENSSL_VERSION=1.0.2u-vuln
+        tags: yurkao/python:1.0.2u-vuln
+
+    - name: Build NGINX
+      uses: docker/build-push-action@v2
+      with:
+        context: nginx
+        pull: true
+        push: true
+        build-args: |
+          OPENSSL_VERSION=1.0.2u-vuln
+        tags: yurkao/nginx:1.0.2u-vuln
