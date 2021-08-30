@@ -18,7 +18,6 @@ jobs:
     - name: Log into registry
       uses: docker/login-action@v1
       with:
-        registry: yurkao
         username: ${{ secrets.DH_USERNAME }}
         password: ${{ secrets.DH_ACCESS }}
 
