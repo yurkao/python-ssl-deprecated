@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ master, f-test, f-apline ]
+    branches: [ master ]
   pull_request:
-    branches: [ master, f-test, f-apline ]
+    branches: [ master ]
 
 jobs:
 

@@ -2,24 +2,6 @@
 
 . /tests/common
 
-rv=1
-cleanup() {
-  cd /  # release BUILD_DIR
-  if [ $rv -ne 0 ]; then
-    echo "Not cleaning up: exited with failure"
-    return 0
-  fi
-  echo "Performing clean-up..."
-  # remove static libs to preserve space
-  find "${OPENSSL_DIR}/lib" -type f -name 'lib*.a' -delete
-  rm -rf "${BUILD_DIR}" "${SSL_CONF_DIR}"/man "${INSTALL_DIR}"/share/man
-  # shellcheck disable=SC2086
-  ${PKG_DEL} ${BUILD_DEPS}  >/dev/null 2>/dev/null && ${CLEAR_CACHE}  && rm -rf /var/lib/apt/lists
-  return 0
-}
-
-trap cleanup EXIT
-
 ${CACHE_UPDATE}
 # shellcheck disable=SC2086
 ${PKG_ADD} ${BUILD_DEPS} >/dev/null 2>/dev/null
@@ -69,7 +51,8 @@ ${MAKE} install
 # set (fix) GOST SO installation path
 sed -ri "s@dynamic_path[ ]*=[ ]*(.+)/libgost.so@dynamic_path = ${INSTALL_DIR}/lib/engines/libgost.so@g" "${INSTALL_DIR}"/openssl.cnf
 
+find "${OPENSSL_DIR}/lib" -type f -name 'lib*.a' -delete
+rm -rf "${BUILD_DIR}" "${SSL_CONF_DIR}"/man "${INSTALL_DIR}"/share/man
 
 echo "${OPENSSL_DIR}/lib" > /etc/ld.so.conf.d/openssl.conf
 ldconfig
-rv=0

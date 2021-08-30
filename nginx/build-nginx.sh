@@ -26,5 +26,10 @@ BUILD_OPTS="--with-http_ssl_module --with-stream --with-debug --with-http_ssl_mo
 ./configure ${BUILD_OPTS} --prefix="${NGINX_DIR}" --pid-path=/tmp/nginx.pid \
   --with-cc-opt="-I${OPENSSL_DIR}/include" --with-ld-opt="-L${OPENSSL_DIR}/lib"
 
-make
-make install
+CORES="$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')"
+MAKE="make -j${CORES}"
+${MAKE}
+${MAKE} install
+find "${OPENSSL_DIR}" -type f -name '*.a' -print0 | xargs --no-run-if-empty -0 rm -f
+rm -rf "${OPENSSL_DIR}/include"
+find "${INSTALL_DIR}" -type f -name '*.a' -print0 | xargs --no-run-if-empty -0 rm -f

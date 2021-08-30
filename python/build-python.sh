@@ -1,9 +1,6 @@
 #!/usr/bin/env sh
 . /tests/common
 
-# mark as failed unless finished
-rv=1
-
 remove_py_tests() {
   for name in "test" tests idle_test; do
     find "${INSTALL_DIR}" -type d -name "${name}" -print0 | xargs --no-run-if-empty --null rm -rf
@@ -15,29 +12,6 @@ remove_py_cache() {
     find "${INSTALL_DIR}" -type f -name "*.${ext}" -delete
   done
 }
-
-cleanup() {
-  if [ $rv -ne 0 ]; then
-    echo "Not cleaning up: exited with failure"
-    return 0
-  fi
-  echo "Performing clean-up..."
-  cd /
-  rm -rf "${OPENSSL_DIR}/include/openssl"
-  rm -f  /tmp/*.pem  # test certificates
-  rm -rf "${BUILD_DIR}" "${INSTALL_DIR}"/include
-  # remove static libs to preserve image space
-  find "${INSTALL_DIR}" -type f -name '*.a' -print0 | xargs --no-run-if-empty -0 rm -f
-  remove_py_tests
-  remove_py_cache
-# shellcheck disable=SC2086
-  ${PKG_DEL} ${BUILD_DEPS} >/dev/null
-  ${CLEAR_CACHE}
-  rm -rf /var/lib/apt/lists
-  return 0
-}
-
-trap cleanup EXIT
 
 ${CACHE_UPDATE}
 # shellcheck disable=SC2086
@@ -72,4 +46,8 @@ ${MAKE} test
 ${MAKE} install
 echo "${INSTALL_DIR}/lib" > "/etc/ld.so.conf.d/python-${PYTHON_VERSION}.conf"
 ldconfig
-rv=0
+find "${INSTALL_DIR}" -type f -name '*.a' -print0 | xargs --no-run-if-empty -0 rm -f
+find "${OPENSSL_DIR}" -type f -name '*.a' -print0 | xargs --no-run-if-empty -0 rm -f
+rm -rf "${OPENSSL_DIR}/include"
+remove_py_tests
+remove_py_cache
