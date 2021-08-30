@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Log into registry
-      uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
+      uses: docker/login-action@v2
       with:
         registry: yurkao
         username: ${{ secrets.DH_USERNAME }}
@@ -25,7 +25,6 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: openssl
-        pull: true
         push: true
         build-args: |
           OPENSSL_VERSION=1.0.2u
@@ -35,7 +34,6 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: python
-        pull: true
         push: true
         build-args: |
           OPENSSL_VERSION=1.0.2u-vuln
@@ -45,7 +43,6 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: nginx
-        pull: true
         push: true
         build-args: |
           OPENSSL_VERSION=1.0.2u-vuln
