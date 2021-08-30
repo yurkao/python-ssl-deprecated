@@ -65,7 +65,8 @@ make clean || true
   --with-system-expat --with-ssl-default-suites=openssl --enable-shared \
   --with-openssl="${OPENSSL_DIR}" --prefix="${INSTALL_DIR}"
 
-MAKE="make"
+CORES="$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')"
+MAKE="make -j${CORES}"
 ${MAKE}
 ${MAKE} test
 ${MAKE} install
